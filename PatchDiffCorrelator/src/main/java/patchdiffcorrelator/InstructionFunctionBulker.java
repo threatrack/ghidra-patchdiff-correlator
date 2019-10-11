@@ -19,7 +19,7 @@ public class InstructionFunctionBulker extends AbstractFunctionBulker {
 		CodeUnitIterator iter = func.getProgram().getListing().getCodeUnits(func.getBody(), true);
 		while (!monitor.isCancelled() && iter.hasNext()) {
 			CodeUnit next = iter.next();
-			// TODO: mask the immediate and displacement values in instructions
+			//TODO: mask the immediate and displacement values in instructions
 			hashes.add((long) next.toString().hashCode());
 			//System.out.println(next.toString() + " = " + next.toString().hashCode());
 		}

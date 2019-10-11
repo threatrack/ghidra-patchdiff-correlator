@@ -39,6 +39,8 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 	@Override
 	protected void doCorrelate(VTMatchSet matchSet, TaskMonitor monitor) throws CancelledException {
 		double similarity_threshold = getOptions().getDouble(SIMILARITY_THRESHOLD, SIMILARITY_THRESHOLD_DEFAULT);
+		double confidence_threshold = getOptions().getDouble(CONFIDENCE_THRESHOLD, CONFIDENCE_THRESHOLD_DEFAULT);
+		boolean symbol_names_must_match = getOptions().getBoolean(SYMBOL_NAMES_MUST_MATCH, SYMBOL_NAMES_MUST_MATCH_DEFAULT);
 
 		VTMatchInfo matchInfo = new VTMatchInfo(matchSet);
 		
@@ -49,9 +51,10 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 		FunctionIterator dstFuncIter = dstProg.getFunctionManager().getFunctions(getDestinationAddressSet(), true);
 
 		monitor.setIndeterminate(false);
-		monitor.initialize(2 * (srcProg.getFunctionManager().getFunctionCount() + dstProg.getFunctionManager().getFunctionCount()));
-
-		monitor.setMessage("Bulking functions in " + srcProg.getName());
+		// TODO: The count is wrong, in case matches are excluded :/
+		monitor.initialize(srcProg.getFunctionManager().getFunctionCount() + dstProg.getFunctionManager().getFunctionCount());
+		
+		monitor.setMessage("Bulking functions in " + srcProg.getName() + " [Source Program]");
 
 		List<List<Long>> srcHashLists = new ArrayList<>();
 		List<Address> srcAddrs = new ArrayList<>();
@@ -67,7 +70,7 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 			}
 		}
 		
-		monitor.setMessage("Bulking functions in " + dstProg.getName());
+		monitor.setMessage("Bulking functions in " + dstProg.getName() + " [Destination Program]");
 
 		while (!monitor.isCancelled() && dstFuncIter.hasNext()) {
 			monitor.incrementProgress(1);
@@ -78,22 +81,40 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 			}
 		}
 
-		for(int s=0; s<srcHashLists.size(); s++)
+		monitor.initialize(srcHashLists.size());
+		monitor.setMessage("Matching...");
+		
+		for(int s=0; !monitor.isCancelled() && s<srcHashLists.size(); s++)
 		{
-			for(int d=0; d<dstHashLists.size(); d++)
+			monitor.incrementProgress(1);
+			for(int d=0; !monitor.isCancelled() && d<dstHashLists.size(); d++)
 			{
 				Address sourceAddress = srcAddrs.get(s);
 				Address destinationAddress = dstAddrs.get(d);
-				
-				double score = getBulkSimilarity(srcHashLists.get(s),dstHashLists.get(d));
-				if( score < similarity_threshold )
-					continue;
-				
-				VTScore similarity = new VTScore(score);
-				VTScore confidence = new VTScore(100.0);
-				
 				Function sourceFunction = getSourceProgram().getFunctionManager().getFunctionAt(sourceAddress);
 				Function destinationFunction = getDestinationProgram().getFunctionManager().getFunctionAt(destinationAddress);
+
+				double confidence_score = 10.0;
+				if( ! sourceFunction.getName(true).equals(destinationFunction.getName(true)) )
+				{
+					confidence_score = 1.0;
+					if( symbol_names_must_match )
+						continue;
+				}
+				if( confidence_score < confidence_threshold )
+				{
+						continue;
+				}
+				
+				double similarity_score = getBulkSimilarity(srcHashLists.get(s),dstHashLists.get(d));
+				if( similarity_score < similarity_threshold )
+				{
+					continue;
+				}
+				
+				VTScore similarity = new VTScore(similarity_score);
+				VTScore confidence = new VTScore(confidence_score);
+				
 				int sourceLength = (int) sourceFunction.getBody().getNumAddresses();
 				int destinationLength = (int) destinationFunction.getBody().getNumAddresses();
 				

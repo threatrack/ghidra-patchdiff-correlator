@@ -32,6 +32,14 @@ public class BulkInstructionProgramCorrelatorFactory extends VTAbstractProgramCo
 	public static final String SIMILARITY_THRESHOLD_DESC = "Similarity should be between 0 and 1";
 	public static final double SIMILARITY_THRESHOLD_DEFAULT = 0.5;
 
+	public static final String CONFIDENCE_THRESHOLD = "Minimum confidence threshold (score)";
+	public static final String CONFIDENCE_THRESHOLD_DESC = "Confidence will be 1.0 (symbols don't match) or 10.0 (symbols match)";
+	public static final double CONFIDENCE_THRESHOLD_DEFAULT = 0.0;
+
+	public static final String SYMBOL_NAMES_MUST_MATCH = "Symbol names must match";
+	public static final String SYMBOL_NAMES_MUST_MATCH_DESC = "Only match functions that have the same symbol names.";
+	public static final boolean SYMBOL_NAMES_MUST_MATCH_DEFAULT = true;
+
 	private static final String helpLocationTopic = "patchdiffcorrelator";
 	protected String helpLocationAnchor = "PatchDiffCorrelator";
 
@@ -66,6 +74,10 @@ public class BulkInstructionProgramCorrelatorFactory extends VTAbstractProgramCo
 		options.setOptionsHelpLocation(help);
 		options.registerOption(SIMILARITY_THRESHOLD, SIMILARITY_THRESHOLD_DEFAULT, help, SIMILARITY_THRESHOLD_DESC);
 		options.setDouble(SIMILARITY_THRESHOLD, SIMILARITY_THRESHOLD_DEFAULT);
+		options.registerOption(CONFIDENCE_THRESHOLD, CONFIDENCE_THRESHOLD_DEFAULT, help, CONFIDENCE_THRESHOLD_DESC);
+		options.setDouble(CONFIDENCE_THRESHOLD, CONFIDENCE_THRESHOLD_DEFAULT);
+		options.registerOption(SYMBOL_NAMES_MUST_MATCH, SYMBOL_NAMES_MUST_MATCH_DEFAULT, help, SYMBOL_NAMES_MUST_MATCH_DESC);
+		options.setBoolean(SYMBOL_NAMES_MUST_MATCH, SYMBOL_NAMES_MUST_MATCH_DEFAULT);
 		return options;
 	}
 
