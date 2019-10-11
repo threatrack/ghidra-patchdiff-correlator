@@ -30,9 +30,9 @@ are to one another instead of providing perfect matching as the included correla
 
 This indicator on similarity is need to find patches in functions.
 
-### Bulk Instruction Program Correlator
+### Bulk Instructions Match
 
-The `Bulk Instruction Program Correlator` will make an unordered bulk list of Instructions
+The `Bulk Instructions Match` Correlator will make an unordered bulk list of Instructions
 occurring in a function.
 
 Let's say we have the function:
@@ -48,18 +48,19 @@ RET
 
 Then the Correlator would "bulk" this to the following list of features:
 
-- `PUSH       EBP`
-- `MOV        EBP,ESP`
-- `SUB        ESP,0x8`
-- `MOV        ESP,EBP`
-- `POP        EBP`
-- `RET`
+- `MOV        EBP,ESP`                                                           
+- `MOV        ESP,EBP`                                                           
+- `POP        EBP`                                                               
+- `PUSH       EBP`                                                               
+- `RET`  
+- `SUB        ESP,0x8` 
 
 If we now have a function:
 
 ```nasm
 PUSH       EBP
 MOV        EBP,ESP
+SUB        ESP,0x42
 MOV        ESP,EBP
 POP        EBP
 RET
@@ -67,11 +68,12 @@ RET
 
 With features:
 
-- `PUSH       EBP`
-- `MOV        EBP,ESP`
-- `MOV        ESP,EBP`
-- `POP        EBP`
-- `RET`
+- `MOV        EBP,ESP`                                                           
+- `MOV        ESP,EBP`                                                           
+- `POP        EBP`                                                               
+- `PUSH       EBP`                                                               
+- `RET`  
+- `SUB        ESP,0x42` 
 
 It would match 5 out of 6 features of the earlier function.
 
@@ -80,21 +82,67 @@ The matching is **unordered** - hence the notion of **"bulk"**.
 So a function of (warning: doesn't make sense):
 
 ```nasm
+SUB        ESP,0x8
 POP        EBP
 MOV        EBP,ESP
-MOV        ESP,EBP
-SUB        ESP,0x8
 PUSH       EBP
+MOV        ESP,EBP
 RET
 ```
 
 Would still match 6 of 6 with the original function, because of the unordered bulk
 comparison logic.
 
-**Eventually, proper state-of-the-art CFG based algorithms should be implemented, but as a
-start this is already an improvement over the binary-only Correlators.**
 
-### Bulk Basic Block Program Correlator
+### Bulk Mnemonics Match
+
+The `Bulk Mnemonics Match` Correlator only adds the instruction mnemonics to the feature bundle for matching.
+
+If you have the function:
+
+```nasm
+PUSH       EBP
+MOV        EBP,ESP
+SUB        ESP,0x8
+MOV        ESP,EBP
+POP        EBP
+RET
+```
+
+Then the Correlator would "bulk" this to the following list of features:
+
+- `MOV`                                                                          
+- `MOV`                                                                          
+- `POP`                                                                          
+- `PUSH`                                                                         
+- `RET` 
+- `SUB`
+
+If we now have a function:
+
+```nasm
+PUSH       EBP
+MOV        EBP,ESP
+SUB        ESP,0x42
+MOV        ESP,EBP
+POP        EBP
+RET
+```
+
+With features:
+
+- `MOV`                                                                          
+- `MOV`                                                                          
+- `POP`                                                                          
+- `PUSH`                                                                         
+- `RET` 
+- `SUB`
+
+would match 6 of 6.
+
+Same unordered remarks as in the [Bulk Instructions Match] Correlator apply.
+
+### TODO: Bulk Basic Block Mnemonics Match
 
 The `Bulk Basic Block Program Correlator` isn't implemented yet, but it will be
 the same as the Bulk Instruction Correlator, but the features in the bulk comparison will be basic

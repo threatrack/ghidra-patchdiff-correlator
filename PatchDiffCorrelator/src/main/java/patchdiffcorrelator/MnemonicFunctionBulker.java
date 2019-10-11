@@ -9,8 +9,8 @@ import ghidra.program.model.listing.Function;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 
-public class InstructionFunctionBulker extends AbstractFunctionBulker {
-	public static final InstructionFunctionBulker INSTANCE = new InstructionFunctionBulker();
+public class MnemonicFunctionBulker extends AbstractFunctionBulker {
+	public static final MnemonicFunctionBulker INSTANCE = new MnemonicFunctionBulker();
 	
 	@Override
 	public List<Long> hashes(Function func, TaskMonitor monitor) throws CancelledException {
@@ -18,9 +18,8 @@ public class InstructionFunctionBulker extends AbstractFunctionBulker {
 		CodeUnitIterator iter = func.getProgram().getListing().getCodeUnits(func.getBody(), true);
 		while (!monitor.isCancelled() && iter.hasNext()) {
 			CodeUnit next = iter.next();
-			//TODO: mask the immediate and displacement values in instructions
 			//TODO: don't use hashCode()
-			hashes.add((long) next.toString().hashCode());
+			hashes.add((long) next.getMnemonicString().hashCode());
 		}
 		return hashes;
 	}

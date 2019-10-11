@@ -6,16 +6,16 @@ import ghidra.framework.plugintool.ServiceProvider;
 import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.listing.Program;
 
-public class BulkInstructionProgramCorrelatorFactory extends BulkProgramCorrelatorFactory {
-	static final String DESC = "Compares functions based on their included instructions without taking the order of the instructions into account.";
-	static final String NAME = "Bulk Instructions Match";
+public class BulkMnemonicProgramCorrelatorFactory extends BulkProgramCorrelatorFactory {
+	static final String DESC = "Compares functions based on their included instruction mnemonics without taking the order of the instructions into account.";
+	static final String NAME = "Bulk Mnemonics Match";
 	
 	@Override
 	protected VTProgramCorrelator doCreateCorrelator(ServiceProvider serviceProvider,
 			Program sourceProgram, AddressSetView sourceAddressSet, Program destinationProgram,
 			AddressSetView destinationAddressSet, VTOptions options) {
 		return new BulkProgramCorrelator(serviceProvider, sourceProgram, sourceAddressSet,
-			destinationProgram, destinationAddressSet, options, NAME, InstructionFunctionBulker.INSTANCE);
+			destinationProgram, destinationAddressSet, options, NAME, MnemonicFunctionBulker.INSTANCE);
 	}
 	
 	@Override

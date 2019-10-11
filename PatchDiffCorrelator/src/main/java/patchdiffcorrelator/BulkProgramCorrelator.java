@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static patchdiffcorrelator.BulkInstructionProgramCorrelatorFactory.*;
+import static patchdiffcorrelator.BulkProgramCorrelatorFactory.*;
 
 import ghidra.feature.vt.api.main.*;
 import ghidra.feature.vt.api.util.VTAbstractProgramCorrelator;
