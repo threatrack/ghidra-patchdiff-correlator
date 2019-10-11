@@ -12,7 +12,14 @@ Then restart Ghidra.
 
 ## How to use?
 
-Just select the `Bulk Instructions Match` Correlator when adding a Correlator to a Version Tracking Session.
+**tl;dr:** Just select the `Bulk Instructions Match` Correlator when adding a Correlator to a Version Tracking Session.
+
+**Full workflow:**
+
+1. Run `Exact Function * Match` Correlators.
+2. `Accept` all matched functions.
+3. Run `Bulk Instructions Match`, but select `Exclude accepted matches`.
+4. Order the functions by `Similarity` and go through starting from most similar, i.e., starting with score `1.000`.
 
 ## How does it work?
 
@@ -93,9 +100,12 @@ The `Bulk Basic Block Program Correlator` isn't implemented yet, but it will be
 the same as the Bulk Instruction Correlator, but the features in the bulk comparison will be basic
 block hashes.
 
+Getting basic blocks in Ghidra: <https://github.com/NationalSecurityAgency/ghidra/issues/1134>
 
 ## TODO
 
 - Help of the Extension isn't available in Ghidra. Need to figure out how to fix that.
+- Figure out how to use the masking feature in Ghidra and use it.
+- Figure out this Ghidra bug(?): <https://github.com/NationalSecurityAgency/ghidra/issues/1135>
 
 
