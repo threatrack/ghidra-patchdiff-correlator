@@ -15,13 +15,13 @@ public class InstructionFunctionBulker extends AbstractFunctionBulker {
 	@Override
 	public List<Long> hashes(Function func, TaskMonitor monitor) throws CancelledException {
 		List<Long> hashes = new ArrayList<>();
-		
+		System.out.println(func.getProgram().getExecutablePath() + " " + func.getName(true));
 		CodeUnitIterator iter = func.getProgram().getListing().getCodeUnits(func.getBody(), true);
 		while (!monitor.isCancelled() && iter.hasNext()) {
 			CodeUnit next = iter.next();
 			//TODO: mask the immediate and displacement values in instructions
 			hashes.add((long) next.toString().hashCode());
-			//System.out.println(next.toString() + " = " + next.toString().hashCode());
+			System.out.println(next.toString() + " = " + next.toString().hashCode());
 		}
 		return hashes;
 	}

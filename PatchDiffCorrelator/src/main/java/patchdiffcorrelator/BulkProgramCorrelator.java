@@ -135,18 +135,20 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 	private double getBulkSimilarity(List<Long> srcList, List<Long> dstList) {
 		Collections.sort(srcList);
 		Collections.sort(dstList);
-		int total = srcList.size() + dstList.size();
+		int total = 0;
 		int common = 0;
 		int d = 0;
 		int s = 0;
+		// TODO: this is unbelievable slow
 		while( s<srcList.size() && d<dstList.size() )
 		{
+			total++;
 			int c = srcList.get(s).compareTo(dstList.get(d));
-			if( c>0 )
+			if( c<0 )
 			{
 				s++;
 			}
-			else if( c<0 )
+			else if( c>0 )
 			{
 				d++;
 			}
@@ -157,8 +159,7 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 				d++;
 			}
 		}
-		
-		return 2.0*((double)common/(double)total);
+		return (double)common/(double)total;
 	}
 
 }
