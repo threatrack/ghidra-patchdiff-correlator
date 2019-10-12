@@ -150,10 +150,16 @@ block hashes.
 
 Getting basic blocks in Ghidra: <https://github.com/NationalSecurityAgency/ghidra/issues/1134>
 
+### Other Correlators
+
+- Other approaches would be to write a correlator that uses already existing matches. Ghidra calls these `Reference Correlator`s, e.g., the `Data Reference Correlator`.
+- Recent paper summarizing the state of the art on binary code similarity: <https://arxiv.org/abs/1909.11424>
+
 ## TODO
 
 - Help of the Extension isn't available in Ghidra. Need to figure out how to fix that.
 - Figure out how to use the masking feature in Ghidra and use it.
 - Figure out this Ghidra bug(?): <https://github.com/NationalSecurityAgency/ghidra/issues/1135>
-
+- Add length filter option, so we don't cross match very short, e.g., single instruction functions.
+- Add option to only return the highest scoring match(es) for each function instead of the cross product of all functions.
 
