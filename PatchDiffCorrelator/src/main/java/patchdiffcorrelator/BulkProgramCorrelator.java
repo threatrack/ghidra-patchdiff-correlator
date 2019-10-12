@@ -1,7 +1,9 @@
 package patchdiffcorrelator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static patchdiffcorrelator.BulkProgramCorrelatorFactory.*;
@@ -41,14 +43,15 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 		double similarity_threshold = getOptions().getDouble(SIMILARITY_THRESHOLD, SIMILARITY_THRESHOLD_DEFAULT);
 		double confidence_threshold = getOptions().getDouble(CONFIDENCE_THRESHOLD, CONFIDENCE_THRESHOLD_DEFAULT);
 		boolean symbol_names_must_match = getOptions().getBoolean(SYMBOL_NAMES_MUST_MATCH, SYMBOL_NAMES_MUST_MATCH_DEFAULT);
+		boolean only_match_accepted = getOptions().getBoolean(ONLY_MATCH_ACCEPTED_MATCHES, ONLY_MATCH_ACCEPTED_MATCHES_DEFAULT);
 
 		VTMatchInfo matchInfo = new VTMatchInfo(matchSet);
 		
 		Program srcProg = getSourceProgram();
 		Program dstProg = getDestinationProgram();
-		
+
 		FunctionIterator srcFuncIter = srcProg.getFunctionManager().getFunctions(getSourceAddressSet(), true);
-		FunctionIterator dstFuncIter = dstProg.getFunctionManager().getFunctions(getDestinationAddressSet(), true);
+		FunctionIterator dstFuncIter = dstProg.getFunctionManager().getFunctions(getDestinationAddressSet(), true);			
 
 		monitor.setIndeterminate(false);
 		// TODO: The count is wrong, in case matches are excluded :/
@@ -71,7 +74,7 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 		}
 		
 		monitor.setMessage("(1/2) Bulking functions in " + dstProg.getName() + " [Destination Program]");
-
+		
 		while (!monitor.isCancelled() && dstFuncIter.hasNext()) {
 			monitor.incrementProgress(1);
 			Function func = dstFuncIter.next();
@@ -80,9 +83,12 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 				dstAddrs.add(func.getEntryPoint());
 			}
 		}
-
+		
 		monitor.initialize(srcHashLists.size());
 		monitor.setMessage("(2/2) Matching...");
+		
+		final VTSession session = matchSet.getSession();
+		List<VTMatchSet> matchSets = session.getMatchSets();
 
 		for(int s=0; !monitor.isCancelled() && s<srcHashLists.size(); s++)
 		{
@@ -95,6 +101,36 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 				Function destinationFunction = getDestinationProgram().getFunctionManager().getFunctionAt(destinationAddress);
 
 				double confidence_score = 10.0;
+				if( only_match_accepted )
+				{
+					// FIXME: this is bad for performance!!!
+					// TODO: optimize this
+					boolean accepted = false;
+					for (VTMatchSet ms : matchSets) {
+						System.out.println(ms.getProgramCorrelatorInfo().getName() + " == " + name);
+						final Collection<VTMatch> matches = ms.getMatches();
+						for(VTMatch match : matches)
+						{
+							VTAssociation a = match.getAssociation();
+							if( a.getStatus() == VTAssociationStatus.ACCEPTED &&
+								a.getType() == VTAssociationType.FUNCTION &&
+								a.getSourceAddress().equals(sourceAddress) &&
+								a.getDestinationAddress().equals(destinationAddress)
+							)
+							{
+								if( ms.getProgramCorrelatorInfo().getName().equals(name) )
+								{
+									// don't add duplicate matches
+									accepted = false;
+									break;
+								}
+								accepted = true;
+							}
+						}
+					}
+					if( !accepted )
+						continue;
+				}
 				if( ! sourceFunction.getName(true).equals(destinationFunction.getName(true)) )
 				{
 					confidence_score = 1.0;

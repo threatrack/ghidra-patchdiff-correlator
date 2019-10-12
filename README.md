@@ -162,4 +162,7 @@ between functions in an unordered bulk comparison.
 - Figure out this Ghidra bug(?): <https://github.com/NationalSecurityAgency/ghidra/issues/1135>
 - Add length filter option, so we don't cross match very short, e.g., single instruction functions.
 - Add option to only return the highest scoring match(es) for each function instead of the cross product of all functions.
+- In `BasicBlockMnemonicFunctionBulker.hashes()` use a proper hashing algorithm to hash the basic blocks.
+- **Optimize the "Only match accepted matches" mode** (use HashMap and don't iterate over stuff multiple times)
+
 

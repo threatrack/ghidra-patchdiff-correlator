@@ -54,6 +54,7 @@ public class BasicBlockMnemonicFunctionBulker extends AbstractFunctionBulker {
 			 * 
 			 * this helps with cases were the compiler swaps instructions
 			 */
+			// NOTE: comment this if you want the order of the mnemonics in the BB to matter
 			Collections.sort(hashes);
 			/* hash over the sorted mnemonics, so each bbhash has the mnemonics of
 			 * that basic block encoded
@@ -61,7 +62,8 @@ public class BasicBlockMnemonicFunctionBulker extends AbstractFunctionBulker {
 			long bbhash = 0;
 			for(long hash : hashes)
 			{
-				bbhash = (bbhash + hash);
+				// TODO: use a proper hash
+				bbhash = (bbhash*11 + hash);
 			}
 			bbhashes.add(bbhash);
 		}

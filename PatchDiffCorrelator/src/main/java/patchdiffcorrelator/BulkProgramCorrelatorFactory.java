@@ -33,13 +33,17 @@ public abstract class BulkProgramCorrelatorFactory extends VTAbstractProgramCorr
 	public static final String SYMBOL_NAMES_MUST_MATCH_DESC = "Only match functions that have the same symbol names.";
 	public static final boolean SYMBOL_NAMES_MUST_MATCH_DEFAULT = true;
 
+	public static final String ONLY_MATCH_ACCEPTED_MATCHES = "Only match accepted matches (WARNING: CURRENTLY VERY BAD PERFORMANCE!)";
+	public static final String ONLY_MATCH_ACCEPTED_MATCHES_DESC = "Only match matches that have been accepted.";
+	public static final boolean ONLY_MATCH_ACCEPTED_MATCHES_DEFAULT = false;
+
 	private static final String helpLocationTopic = "patchdiffcorrelator";
 	protected String helpLocationAnchor = "PatchDiffCorrelator";
 
 	@Override
 	public int getPriority() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 1000;
 	}
 	
 	@Override
@@ -53,6 +57,8 @@ public abstract class BulkProgramCorrelatorFactory extends VTAbstractProgramCorr
 		options.setDouble(CONFIDENCE_THRESHOLD, CONFIDENCE_THRESHOLD_DEFAULT);
 		options.registerOption(SYMBOL_NAMES_MUST_MATCH, SYMBOL_NAMES_MUST_MATCH_DEFAULT, help, SYMBOL_NAMES_MUST_MATCH_DESC);
 		options.setBoolean(SYMBOL_NAMES_MUST_MATCH, SYMBOL_NAMES_MUST_MATCH_DEFAULT);
+		options.registerOption(ONLY_MATCH_ACCEPTED_MATCHES, ONLY_MATCH_ACCEPTED_MATCHES_DEFAULT, help, ONLY_MATCH_ACCEPTED_MATCHES_DESC);
+		options.setBoolean(ONLY_MATCH_ACCEPTED_MATCHES, ONLY_MATCH_ACCEPTED_MATCHES_DEFAULT);
 		return options;
 	}
 
