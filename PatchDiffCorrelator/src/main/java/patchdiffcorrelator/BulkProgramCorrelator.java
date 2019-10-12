@@ -54,7 +54,7 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 		// TODO: The count is wrong, in case matches are excluded :/
 		monitor.initialize(srcProg.getFunctionManager().getFunctionCount() + dstProg.getFunctionManager().getFunctionCount());
 		
-		monitor.setMessage("Bulking functions in " + srcProg.getName() + " [Source Program]");
+		monitor.setMessage("(1/2) Bulking functions in " + srcProg.getName() + " [Source Program]");
 
 		List<List<Long>> srcHashLists = new ArrayList<>();
 		List<Address> srcAddrs = new ArrayList<>();
@@ -70,7 +70,7 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 			}
 		}
 		
-		monitor.setMessage("Bulking functions in " + dstProg.getName() + " [Destination Program]");
+		monitor.setMessage("(1/2) Bulking functions in " + dstProg.getName() + " [Destination Program]");
 
 		while (!monitor.isCancelled() && dstFuncIter.hasNext()) {
 			monitor.incrementProgress(1);
@@ -82,8 +82,8 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 		}
 
 		monitor.initialize(srcHashLists.size());
-		monitor.setMessage("Matching...");
-		
+		monitor.setMessage("(2/2) Matching...");
+
 		for(int s=0; !monitor.isCancelled() && s<srcHashLists.size(); s++)
 		{
 			monitor.incrementProgress(1);
@@ -135,14 +135,13 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 	private double getBulkSimilarity(List<Long> srcList, List<Long> dstList) {
 		Collections.sort(srcList);
 		Collections.sort(dstList);
-		int total = 0;
+		int total = Integer.max(srcList.size(),dstList.size());
 		int common = 0;
 		int d = 0;
 		int s = 0;
 		// TODO: this is unbelievable slow
 		while( s<srcList.size() && d<dstList.size() )
 		{
-			total++;
 			int c = srcList.get(s).compareTo(dstList.get(d));
 			if( c<0 )
 			{

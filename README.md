@@ -142,17 +142,17 @@ would match 6 of 6.
 
 Same unordered remarks as in the [Bulk Instructions Match] Correlator apply.
 
-### TODO: Bulk Basic Block Mnemonics Match
+### Bulk Basic Block Mnemonics Match
 
-The `Bulk Basic Block Program Correlator` isn't implemented yet, but it will be
-the same as the Bulk Instruction Correlator, but the features in the bulk comparison will be basic
-block hashes.
+The `Bulk Basic Block Mnemonics Match` Correlator first converts the mnemonics
+of each basic block into a list. That list is sorted and hashes (so the order of the mnemonics
+within the basic block don't matter). Then these basic block hashes are compared
+between functions in an unordered bulk comparison.
 
-Getting basic blocks in Ghidra: <https://github.com/NationalSecurityAgency/ghidra/issues/1134>
 
 ### Other Correlators
 
-- Other approaches would be to write a correlator that uses already existing matches. Ghidra calls these `Reference Correlator`s, e.g., the `Data Reference Correlator`.
+- Other approaches would be to write a correlator that uses already existing matches. Ghidra calls these `Reference Correlator`s, e.g., the `Data Reference Correlator`. A template can be found here <https://github.com/NationalSecurityAgency/ghidra/blob/49c2010b63b56c8f20845f3970fedd95d003b1e9/Ghidra/Features/VersionTracking/src/main/java/ghidra/feature/vt/api/correlator/program/VTAbstractReferenceProgramCorrelatorFactory.java>
 - Recent paper summarizing the state of the art on binary code similarity: <https://arxiv.org/abs/1909.11424>
 
 ## TODO
