@@ -12,7 +12,11 @@ Then restart Ghidra.
 
 ## How to use?
 
-**Full workflow:**
+**A simple introduction video:**
+
+[![Youtube video introducing the PatchDiffCorrelator Project](https://img.youtube.com/vi/8BH7ttwz5tg/0.jpg)](https://www.youtube.com/watch?v=8BH7ttwz5tg)
+
+**Advanced workflow:**
 
 0. Run the `Exact Symbols Name Match` Correlator **if there are symbols**.
 1. Run the `Exact Function * Match` Correlators.
@@ -185,4 +189,6 @@ There are several options:
 - Add option to only return the highest scoring match(es) for each function instead of the cross product of all functions.
 - In `BasicBlockMnemonicFunctionBulker.hashes()` use a proper hashing algorithm to hash the basic blocks.
 - Use `symbol.getSource() == SourceType.DEFAULT` to detect undefined symbols instead of `.startswith("FUN_"`.
+- **Add script that colors changes in the destination program. So we can use Graph View to assess changes.**
+
 
