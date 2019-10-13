@@ -12,14 +12,22 @@ Then restart Ghidra.
 
 ## How to use?
 
-**tl;dr:** Just select the `Bulk Instructions Match` Correlator when adding a Correlator to a Version Tracking Session.
+**tl;dr:** Just select the `Bulk Basic Block Mnemonics Match` Correlator when adding a Correlator to a Version Tracking Session.
 
 **Full workflow:**
 
-1. Run `Exact Function * Match` Correlators.
+1. Run the `Exact Function * Match` Correlators.
 2. `Accept` all matched functions.
-3. Run `Bulk Instructions Match`, but select `Exclude accepted matches`.
-4. Order the functions by `Similarity` and go through starting from most similar, i.e., starting with score `1.000`.
+3. `Accept` suitable `Implied Matches`
+4. Run some `Reference` Correlators.
+5. `Accept` matches.
+6. Repeat matching until you are confident the function you are after has been matched up and accepted.
+7. Run a `Bulk * Match` with `Only match accepted matches` select. This will produce a scoring for your accepted matches for similarity of the functions.
+
+### Hints
+
+- The `Bulk Basic Block Mnemonics Match` Correlator is good for finding basic block changes.
+- The `Bulk Mnemomics Match` Correlator is robust against instruction reordering performed by compilers.
 
 ## How does it work?
 
@@ -30,7 +38,9 @@ are to one another instead of providing perfect matching as the included correla
 
 This indicator on similarity is need to find patches in functions.
 
-### Bulk Instructions Match
+### Correlators
+
+#### Bulk Instructions Match
 
 The `Bulk Instructions Match` Correlator will make an unordered bulk list of Instructions
 occurring in a function.
@@ -94,7 +104,7 @@ Would still match 6 of 6 with the original function, because of the unordered bu
 comparison logic.
 
 
-### Bulk Mnemonics Match
+#### Bulk Mnemonics Match
 
 The `Bulk Mnemonics Match` Correlator only adds the instruction mnemonics to the feature bundle for matching.
 
@@ -142,17 +152,27 @@ would match 6 of 6.
 
 Same unordered remarks as in the [Bulk Instructions Match] Correlator apply.
 
-### Bulk Basic Block Mnemonics Match
+#### Bulk Basic Block Mnemonics Match
 
 The `Bulk Basic Block Mnemonics Match` Correlator first converts the mnemonics
 of each basic block into a list. That list is sorted and hashes (so the order of the mnemonics
 within the basic block don't matter). Then these basic block hashes are compared
 between functions in an unordered bulk comparison.
 
+### Options
+
+There are several options:
+
+- `Minimum similarity threshold (score)`: Only return matches that have a score higher than this threshold.
+- `Minimum confidence threshold (score)`: Confidence is ranked as follows (but may change in the future):
+	- `1.0` or `0.000` in `log10`: When symbols don't match
+	- `10.0` or `1.000` in `log10`: When symbols match
+- `Symbol names must match`: Only match functions when their symbol names match
+	- **Warning:** If you disable this make sure to set `Minimum similarity threshold` to something reasonable, otherwise you get the cross-product of all the functions in both binaries, e.g. if the source program has 100 functions and the destination also 100 and no threshold is specified, you'd get `100 * 100 = 100000` matches!
+- `Only match accepted matches`: Only calculate the similarity for functions that already have an accepted match entry in the Matches Table. **This is the most useful option.**
 
 ### Other Correlators
 
-- Other approaches would be to write a correlator that uses already existing matches. Ghidra calls these `Reference Correlator`s, e.g., the `Data Reference Correlator`. A template can be found here <https://github.com/NationalSecurityAgency/ghidra/blob/49c2010b63b56c8f20845f3970fedd95d003b1e9/Ghidra/Features/VersionTracking/src/main/java/ghidra/feature/vt/api/correlator/program/VTAbstractReferenceProgramCorrelatorFactory.java>
 - Recent paper summarizing the state of the art on binary code similarity: <https://arxiv.org/abs/1909.11424>
 
 ## TODO
@@ -160,9 +180,7 @@ between functions in an unordered bulk comparison.
 - Help of the Extension isn't available in Ghidra. Need to figure out how to fix that.
 - Figure out how to use the masking feature in Ghidra and use it.
 - Figure out this Ghidra bug(?): <https://github.com/NationalSecurityAgency/ghidra/issues/1135>
-- Add length filter option, so we don't cross match very short, e.g., single instruction functions.
 - Add option to only return the highest scoring match(es) for each function instead of the cross product of all functions.
 - In `BasicBlockMnemonicFunctionBulker.hashes()` use a proper hashing algorithm to hash the basic blocks.
-- **Optimize the "Only match accepted matches" mode** (use HashMap and don't iterate over stuff multiple times)
 
 

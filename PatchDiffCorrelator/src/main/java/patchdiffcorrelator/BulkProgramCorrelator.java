@@ -1,10 +1,12 @@
 package patchdiffcorrelator;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+
+import generic.stl.Pair;
 
 import static patchdiffcorrelator.BulkProgramCorrelatorFactory.*;
 
@@ -54,117 +56,136 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 		FunctionIterator dstFuncIter = dstProg.getFunctionManager().getFunctions(getDestinationAddressSet(), true);			
 
 		monitor.setIndeterminate(false);
+
 		// TODO: The count is wrong, in case matches are excluded :/
 		monitor.initialize(srcProg.getFunctionManager().getFunctionCount() + dstProg.getFunctionManager().getFunctionCount());
-		
-		monitor.setMessage("(1/2) Bulking functions in " + srcProg.getName() + " [Source Program]");
+		monitor.setMessage("(1/3) Get functions");
 
-		List<List<Long>> srcHashLists = new ArrayList<>();
-		List<Address> srcAddrs = new ArrayList<>();
-		List<List<Long>> dstHashLists = new ArrayList<>();
-		List<Address> dstAddrs = new ArrayList<>();
-		
+		HashMap<Address,List<Long>> srcHashMap = new HashMap<Address,List<Long>>();
+		HashMap<Address,List<Long>> dstHashMap = new HashMap<Address,List<Long>>();
+
 		while (!monitor.isCancelled() && srcFuncIter.hasNext()) {
 			monitor.incrementProgress(1);
 			Function func = srcFuncIter.next();
 			if (!func.isThunk()) {
-				srcHashLists.add(bulker.hashes(func, monitor));
-				srcAddrs.add(func.getEntryPoint());
+				srcHashMap.put(func.getEntryPoint(),null);
 			}
 		}
-		
-		monitor.setMessage("(1/2) Bulking functions in " + dstProg.getName() + " [Destination Program]");
 		
 		while (!monitor.isCancelled() && dstFuncIter.hasNext()) {
 			monitor.incrementProgress(1);
 			Function func = dstFuncIter.next();
 			if (!func.isThunk()) {
-				dstHashLists.add(bulker.hashes(func, monitor));
-				dstAddrs.add(func.getEntryPoint());
+				dstHashMap.put(func.getEntryPoint(),null);
 			}
 		}
-		
-		monitor.initialize(srcHashLists.size());
-		monitor.setMessage("(2/2) Matching...");
-		
-		final VTSession session = matchSet.getSession();
-		List<VTMatchSet> matchSets = session.getMatchSets();
 
-		for(int s=0; !monitor.isCancelled() && s<srcHashLists.size(); s++)
+		HashSet<Pair<Address,Address>> diffSet = new HashSet<Pair<Address,Address>>();
+		if( only_match_accepted )
 		{
-			monitor.incrementProgress(1);
-			for(int d=0; !monitor.isCancelled() && d<dstHashLists.size(); d++)
-			{
-				Address sourceAddress = srcAddrs.get(s);
-				Address destinationAddress = dstAddrs.get(d);
-				Function sourceFunction = getSourceProgram().getFunctionManager().getFunctionAt(sourceAddress);
-				Function destinationFunction = getDestinationProgram().getFunctionManager().getFunctionAt(destinationAddress);
+			final VTSession session = matchSet.getSession();
+			List<VTMatchSet> matchSets = session.getMatchSets();
 
-				double confidence_score = 10.0;
-				if( only_match_accepted )
+			monitor.initialize(matchSets.size());
+			monitor.setMessage("(2/3) Calculating diff set (from accepted matches)");
+
+			// TODO: optimize this
+			for (VTMatchSet ms : matchSets) {
+				monitor.incrementProgress(1);
+				System.out.println(ms.getProgramCorrelatorInfo().getName() + " == " + name);
+				final Collection<VTMatch> matches = ms.getMatches();
+				for(VTMatch match : matches)
 				{
-					// FIXME: this is bad for performance!!!
-					// TODO: optimize this
-					boolean accepted = false;
-					for (VTMatchSet ms : matchSets) {
-						System.out.println(ms.getProgramCorrelatorInfo().getName() + " == " + name);
-						final Collection<VTMatch> matches = ms.getMatches();
-						for(VTMatch match : matches)
+					VTAssociation a = match.getAssociation();
+					Pair<Address,Address> addr = new Pair<Address,Address>(a.getSourceAddress(),a.getDestinationAddress());
+					if( a.getStatus() == VTAssociationStatus.ACCEPTED &&
+						a.getType() == VTAssociationType.FUNCTION &&
+						srcHashMap.containsKey(addr.first) &&
+						dstHashMap.containsKey(addr.second)
+					)
+					{
+						if( ms.getProgramCorrelatorInfo().getName().equals(name) )
 						{
-							VTAssociation a = match.getAssociation();
-							if( a.getStatus() == VTAssociationStatus.ACCEPTED &&
-								a.getType() == VTAssociationType.FUNCTION &&
-								a.getSourceAddress().equals(sourceAddress) &&
-								a.getDestinationAddress().equals(destinationAddress)
-							)
-							{
-								if( ms.getProgramCorrelatorInfo().getName().equals(name) )
-								{
-									// don't add duplicate matches
-									accepted = false;
-									break;
-								}
-								accepted = true;
-							}
+							// don't add another match if a match already exists
+							diffSet.remove(addr);
+						}
+						else
+						{
+							diffSet.add(addr);
 						}
 					}
-					if( !accepted )
-						continue;
 				}
-				if( ! sourceFunction.getName(true).equals(destinationFunction.getName(true)) )
-				{
-					confidence_score = 1.0;
-					if( symbol_names_must_match )
-						continue;
-				}
-				if( confidence_score < confidence_threshold )
-				{
-						continue;
-				}
-				
-				double similarity_score = getBulkSimilarity(srcHashLists.get(s),dstHashLists.get(d));
-				if( similarity_score < similarity_threshold )
-				{
-					continue;
-				}
-				
-				VTScore similarity = new VTScore(similarity_score);
-				VTScore confidence = new VTScore(confidence_score);
-				
-				int sourceLength = (int) sourceFunction.getBody().getNumAddresses();
-				int destinationLength = (int) destinationFunction.getBody().getNumAddresses();
-				
-				matchInfo.setSimilarityScore(similarity);
-				matchInfo.setConfidenceScore(confidence);
-				matchInfo.setSourceLength(sourceLength);
-				matchInfo.setDestinationLength(destinationLength);
-				matchInfo.setSourceAddress(sourceAddress);
-				matchInfo.setDestinationAddress(destinationAddress);
-				matchInfo.setTag(null);
-				matchInfo.setAssociationType(VTAssociationType.FUNCTION);
-					
-				matchSet.addMatch(matchInfo);
 			}
+		}
+		else
+		{
+			monitor.initialize(srcHashMap.size() * dstHashMap.size());
+			monitor.setMessage("(2/3) Calculating diff set (from all functions)");
+			// compare every source with every destination function
+			for(Address s : srcHashMap.keySet())
+			{
+				monitor.incrementProgress(1);
+				for(Address d : dstHashMap.keySet())
+				{
+					monitor.incrementProgress(1);
+					Pair<Address,Address> addr = new Pair<Address,Address>(s, d);
+					diffSet.add(addr);
+				}
+			}
+		}
+
+		monitor.initialize(diffSet.size());
+		monitor.setMessage("(3/3) Matching...");
+		
+		for(Pair <Address,Address> addr : diffSet)
+		{
+			monitor.incrementProgress(1);
+			Function srcFunc = getSourceProgram().getFunctionManager().getFunctionAt(addr.first);
+			Function dstFunc = getDestinationProgram().getFunctionManager().getFunctionAt(addr.second);
+
+			double confidence_score = 10.0;
+			if( ! srcFunc.getName(true).equals(dstFunc.getName(true)) )
+			{
+				confidence_score = 1.0;
+				if( symbol_names_must_match )
+					continue;
+			}
+			if( confidence_score < confidence_threshold )
+			{
+					continue;
+			}
+
+			if(srcHashMap.get(addr.first)==null)
+			{
+				srcHashMap.replace(addr.first, bulker.hashes(srcFunc, monitor));
+			}
+			if(dstHashMap.get(addr.second)==null)
+			{
+				dstHashMap.replace(addr.second, bulker.hashes(dstFunc, monitor));
+			}
+			
+			double similarity_score = getBulkSimilarity(srcHashMap.get(addr.first),dstHashMap.get(addr.second));
+			if( similarity_score < similarity_threshold )
+			{
+				continue;
+			}
+			
+			VTScore similarity = new VTScore(similarity_score);
+			VTScore confidence = new VTScore(confidence_score);
+			
+			int sourceLength = (int) srcFunc.getBody().getNumAddresses();
+			int destinationLength = (int) dstFunc.getBody().getNumAddresses();
+			
+			matchInfo.setSimilarityScore(similarity);
+			matchInfo.setConfidenceScore(confidence);
+			matchInfo.setSourceLength(sourceLength);
+			matchInfo.setDestinationLength(destinationLength);
+			matchInfo.setSourceAddress(addr.first);
+			matchInfo.setDestinationAddress(addr.second);
+			matchInfo.setTag(null);
+			matchInfo.setAssociationType(VTAssociationType.FUNCTION);
+				
+			matchSet.addMatch(matchInfo);
 		}
 	}
 
@@ -196,7 +217,7 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 		}
 		return (double)common/(double)total;
 	}
-
+	
 }
 
 

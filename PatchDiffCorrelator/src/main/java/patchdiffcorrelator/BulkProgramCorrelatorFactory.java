@@ -23,7 +23,7 @@ public abstract class BulkProgramCorrelatorFactory extends VTAbstractProgramCorr
 
 	public static final String SIMILARITY_THRESHOLD = "Minimum similarity threshold (score)";
 	public static final String SIMILARITY_THRESHOLD_DESC = "Similarity should be between 0 and 1";
-	public static final double SIMILARITY_THRESHOLD_DEFAULT = 0.5;
+	public static final double SIMILARITY_THRESHOLD_DEFAULT = 0.1;
 
 	public static final String CONFIDENCE_THRESHOLD = "Minimum confidence threshold (score)";
 	public static final String CONFIDENCE_THRESHOLD_DESC = "Confidence will be 1.0 (symbols don't match) or 10.0 (symbols match)";
