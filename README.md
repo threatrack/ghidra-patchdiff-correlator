@@ -12,20 +12,21 @@ Then restart Ghidra.
 
 ## How to use?
 
-**tl;dr:** Just select the `Bulk Basic Block Mnemonics Match` Correlator when adding a Correlator to a Version Tracking Session.
-
 **Full workflow:**
 
+0. Run the `Exact Symbols Name Match` Correlator **if there are symbols**.
 1. Run the `Exact Function * Match` Correlators.
 2. `Accept` all matched functions.
 3. `Accept` suitable `Implied Matches`
 4. Run some `Reference` Correlators.
 5. `Accept` matches.
-6. Repeat matching until you are confident the function you are after has been matched up and accepted.
-7. Run a `Bulk * Match` with `Only match accepted matches` select. This will produce a scoring for your accepted matches for similarity of the functions.
+6. **Repeat "conventional" matching until the function you are after has been accepted**.
+7. Run a `Bulk * Match` with **`Only match accepted matches`** select. This will produce a scoring for your accepted matches for similarity of the functions.
 
 ### Hints
 
+- The symbol matcher in these correlators is not as good as the included `Exact Symbols Name Match` Correlator.
+- These matchers are slower than the included `Exact Function * Match` Correlators, so you should run the included ones first, then exclude them (via selection) from running through the patch diff correlators.
 - The `Bulk Basic Block Mnemonics Match` Correlator is good for finding basic block changes.
 - The `Bulk Mnemomics Match` Correlator is robust against instruction reordering performed by compilers.
 
@@ -169,6 +170,7 @@ There are several options:
 	- `10.0` or `1.000` in `log10`: When symbols match
 - `Symbol names must match`: Only match functions when their symbol names match
 	- **Warning:** If you disable this make sure to set `Minimum similarity threshold` to something reasonable, otherwise you get the cross-product of all the functions in both binaries, e.g. if the source program has 100 functions and the destination also 100 and no threshold is specified, you'd get `100 * 100 = 100000` matches!
+- `Ignore undefined symbols (FUN_)`: Settings this won't use the default labels assigned to undefined symbols for symbol name matching. So it won't match `FUN_00001234` to `FUN_00001234`.
 - `Only match accepted matches`: Only calculate the similarity for functions that already have an accepted match entry in the Matches Table. **This is the most useful option.**
 
 ### Other Correlators
@@ -182,5 +184,5 @@ There are several options:
 - Figure out this Ghidra bug(?): <https://github.com/NationalSecurityAgency/ghidra/issues/1135>
 - Add option to only return the highest scoring match(es) for each function instead of the cross product of all functions.
 - In `BasicBlockMnemonicFunctionBulker.hashes()` use a proper hashing algorithm to hash the basic blocks.
-
+- Use `symbol.getSource() == SourceType.DEFAULT` to detect undefined symbols instead of `.startswith("FUN_"`.
 

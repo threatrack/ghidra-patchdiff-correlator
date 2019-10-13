@@ -45,6 +45,7 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 		double similarity_threshold = getOptions().getDouble(SIMILARITY_THRESHOLD, SIMILARITY_THRESHOLD_DEFAULT);
 		double confidence_threshold = getOptions().getDouble(CONFIDENCE_THRESHOLD, CONFIDENCE_THRESHOLD_DEFAULT);
 		boolean symbol_names_must_match = getOptions().getBoolean(SYMBOL_NAMES_MUST_MATCH, SYMBOL_NAMES_MUST_MATCH_DEFAULT);
+		boolean ignore_undefined = getOptions().getBoolean(IGNORE_UNDEFINED_SYMBOLS, IGNORE_UNDEFINED_SYMBOLS_DEFAULT);
 		boolean only_match_accepted = getOptions().getBoolean(ONLY_MATCH_ACCEPTED_MATCHES, ONLY_MATCH_ACCEPTED_MATCHES_DEFAULT);
 
 		VTMatchInfo matchInfo = new VTMatchInfo(matchSet);
@@ -91,8 +92,8 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 
 			// TODO: optimize this
 			for (VTMatchSet ms : matchSets) {
+				monitor.checkCanceled();
 				monitor.incrementProgress(1);
-				System.out.println(ms.getProgramCorrelatorInfo().getName() + " == " + name);
 				final Collection<VTMatch> matches = ms.getMatches();
 				for(VTMatch match : matches)
 				{
@@ -124,9 +125,11 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 			// compare every source with every destination function
 			for(Address s : srcHashMap.keySet())
 			{
+				monitor.checkCanceled();
 				monitor.incrementProgress(1);
 				for(Address d : dstHashMap.keySet())
 				{
+					monitor.checkCanceled();
 					monitor.incrementProgress(1);
 					Pair<Address,Address> addr = new Pair<Address,Address>(s, d);
 					diffSet.add(addr);
@@ -139,16 +142,27 @@ public class BulkProgramCorrelator extends VTAbstractProgramCorrelator {
 		
 		for(Pair <Address,Address> addr : diffSet)
 		{
+			monitor.checkCanceled();
 			monitor.incrementProgress(1);
 			Function srcFunc = getSourceProgram().getFunctionManager().getFunctionAt(addr.first);
 			Function dstFunc = getDestinationProgram().getFunctionManager().getFunctionAt(addr.second);
 
+			if( symbol_names_must_match && ignore_undefined )
+			{
+				// TODO: do this proper: https://github.com/NationalSecurityAgency/ghidra/blob/49c2010b63b56c8f20845f3970fedd95d003b1e9/Ghidra/Features/Base/src/main/java/ghidra/app/plugin/prototype/match/MatchSymbol.java#L152
+				if( srcFunc.getName().startsWith("FUN_") )
+				{
+					continue;
+				}
+			}
 			double confidence_score = 10.0;
 			if( ! srcFunc.getName(true).equals(dstFunc.getName(true)) )
 			{
 				confidence_score = 1.0;
 				if( symbol_names_must_match )
+				{
 					continue;
+				}
 			}
 			if( confidence_score < confidence_threshold )
 			{
