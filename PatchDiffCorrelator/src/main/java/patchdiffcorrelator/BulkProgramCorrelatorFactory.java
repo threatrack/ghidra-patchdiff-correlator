@@ -33,7 +33,7 @@ public abstract class BulkProgramCorrelatorFactory extends VTAbstractProgramCorr
 	public static final String SYMBOL_NAMES_MUST_MATCH_DESC = "Only match functions that have the same symbol names.";
 	public static final boolean SYMBOL_NAMES_MUST_MATCH_DEFAULT = true;
 
-	public static final String ONLY_MATCH_ACCEPTED_MATCHES = "Only match accepted matches (WARNING: CURRENTLY VERY BAD PERFORMANCE!)";
+	public static final String ONLY_MATCH_ACCEPTED_MATCHES = "Only match accepted matches";
 	public static final String ONLY_MATCH_ACCEPTED_MATCHES_DESC = "Only match matches that have been accepted.";
 	public static final boolean ONLY_MATCH_ACCEPTED_MATCHES_DEFAULT = false;
 
