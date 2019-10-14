@@ -16,7 +16,17 @@ Then restart Ghidra.
 
 [![Youtube video introducing the PatchDiffCorrelator Project](https://img.youtube.com/vi/8BH7ttwz5tg/0.jpg)](https://www.youtube.com/watch?v=8BH7ttwz5tg)
 
+**Simple workflow:**
+
+0. Run the Automatic Version Tracking Command.
+1. Run a `Bulk * Match` Correlator with **`Only match accepted matches`** select. This will produce a scoring for your accepted matches for similarity of the functions.
+
 **Advanced workflow:**
+
+While the Automatic Version Tracking Command find very good matches by running
+the included Correlators in their defined ordered and automagically accepting good
+matching, it takes more time than only running the Correlators you need to get
+your matches. This can be done via (but may vary depending on binary):
 
 0. Run the `Exact Symbols Name Match` Correlator **if there are symbols**.
 1. Run the `Exact Function * Match` Correlators.
@@ -25,7 +35,7 @@ Then restart Ghidra.
 4. Run some `Reference` Correlators.
 5. `Accept` matches.
 6. **Repeat "conventional" matching until the function you are after has been accepted**.
-7. Run a `Bulk * Match` with **`Only match accepted matches`** select. This will produce a scoring for your accepted matches for similarity of the functions.
+7. Run a `Bulk * Match` Correlator with **`Only match accepted matches`** select. This will produce a scoring for your accepted matches for similarity of the functions.
 
 ### Hints
 
@@ -189,6 +199,11 @@ There are several options:
 - Add option to only return the highest scoring match(es) for each function instead of the cross product of all functions.
 - In `BasicBlockMnemonicFunctionBulker.hashes()` use a proper hashing algorithm to hash the basic blocks.
 - Use `symbol.getSource() == SourceType.DEFAULT` to detect undefined symbols instead of `.startswith("FUN_"`.
+
+- Optimization:
+	- Use the `instruction prime products` concept of BinDiff (see <https://www.zynamics.com/bindiff/manual/>)
+		- For this we need a mnemonic to prime number mapping :/
+
 - **Add script that colors changes in the destination program. So we can use Graph View to assess changes.**
 
 
