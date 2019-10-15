@@ -216,7 +216,7 @@ Mnemonic "Bulk" (see [Bulk Mnemonics Match] for a concept of "Bulk").
 ### FunctionDiffColorizer.java
 
 1. Open Source Program.
-2. Select Function to colorize in Destination Program.
+2. In Source Program select the Function you want to compare against the Destination Program (and colorize in the Destination Program).
 3. Run `FunctionDiffColorizer.java`
 	1. Select Destination Program.
 	2. Select Destination Function.
