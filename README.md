@@ -213,6 +213,8 @@ Mnemonic "Bulk" (see [Bulk Mnemonics Match] for a concept of "Bulk").
 
 ## Scripts
 
+**You can grab just the scripts. They are in [PatchDiffCorrelator/ghidra_scripts/](PatchDiffCorrelator/ghidra_scripts/).**
+
 ### FunctionDiffColorizer.java
 
 1. Open Source Program.
