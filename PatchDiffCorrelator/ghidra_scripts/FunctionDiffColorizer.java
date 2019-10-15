@@ -30,7 +30,7 @@ import ghidra.program.model.symbol.Symbol;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 
-public class FunctionDiffColorizer extends GhidraScript {
+public class FunctionDiffColorizer2 extends GhidraScript {
 
 	@Override
 	protected void run() throws Exception {
@@ -46,7 +46,7 @@ public class FunctionDiffColorizer extends GhidraScript {
 
 		// Get the dst function to compare against
 		Program dstProgram = askProgram("Select Destination Program");
-		int dstTransactionID = dstProgram.startTransaction("Dst FunctionDiffColorizer.java");
+		int dstTransactionID = dstProgram.startTransaction("Dst FunctionDiffColorizer2.java");
 
 		List<String> askSymbolList = new ArrayList<String>();
 		for( Symbol s : dstProgram.getSymbolTable().getAllSymbols(false) )
@@ -85,7 +85,7 @@ public class FunctionDiffColorizer extends GhidraScript {
 			if( c<0 )
 			{
 				println("Src Different");
-				setBackgroundColor(src.second, new Color(200,160,160));
+				//setBackgroundColor(src.second, new Color(200,160,160));
 				s++;
 			}
 			else if( c>0 )
@@ -105,7 +105,7 @@ public class FunctionDiffColorizer extends GhidraScript {
 		{
 			Pair<Long,AddressSetView> src = srcList.get(s);
 			println("Src Different");
-			setBackgroundColor(src.second, new Color(200,160,160));
+			//setBackgroundColor(src.second, new Color(200,160,160));
 			s++;
 		}
 		while( d<srcList.size() )
