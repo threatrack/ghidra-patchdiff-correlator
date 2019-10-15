@@ -63,7 +63,7 @@ public class BasicBlockMnemonicFunctionBulker extends AbstractFunctionBulker {
 			for(long hash : hashes)
 			{
 				// TODO: use a proper hash
-				bbhash = (bbhash*11 + hash);
+				bbhash = (bbhash*31 + hash);
 			}
 			bbhashes.add(bbhash);
 		}

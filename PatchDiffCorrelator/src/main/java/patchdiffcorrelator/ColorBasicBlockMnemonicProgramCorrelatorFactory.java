@@ -6,16 +6,16 @@ import ghidra.framework.plugintool.ServiceProvider;
 import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.listing.Program;
 
-public class BulkBasicBlockMnemonicProgramCorrelatorFactory extends AbstractBulkProgramCorrelatorFactory {
-	static final String DESC = "Compares functions based on their instruction mnemonics within basic blocks without taking the order of the basic blocks into account.";
-	static final String NAME = "Bulk Basic Block Mnemonics Match";
+public abstract class ColorBasicBlockMnemonicProgramCorrelatorFactory extends AbstractColorProgramCorrelatorFactory {
+	static final String NAME = "Coloring Basic Block Mnemonics";
+	static final String DESC = "Color the changed basic blocks in the source and destination programs.";
 	
 	@Override
 	protected VTProgramCorrelator doCreateCorrelator(ServiceProvider serviceProvider,
 			Program sourceProgram, AddressSetView sourceAddressSet, Program destinationProgram,
 			AddressSetView destinationAddressSet, VTOptions options) {
-		return new BulkProgramCorrelator(serviceProvider, sourceProgram, sourceAddressSet,
-			destinationProgram, destinationAddressSet, options, NAME, BasicBlockMnemonicFunctionBulker.INSTANCE);
+		return new ColorProgramCorrelator(serviceProvider, sourceProgram, sourceAddressSet,
+			destinationProgram, destinationAddressSet, options, NAME, BasicBlockMnemonicFunctionColorer.INSTANCE);
 	}
 	
 	@Override

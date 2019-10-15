@@ -19,11 +19,11 @@ import ghidra.feature.vt.api.util.VTAbstractProgramCorrelatorFactory;
 import ghidra.feature.vt.api.util.VTOptions;
 import ghidra.util.HelpLocation;
 
-public abstract class BulkProgramCorrelatorFactory extends VTAbstractProgramCorrelatorFactory {
+public abstract class AbstractBulkProgramCorrelatorFactory extends VTAbstractProgramCorrelatorFactory {
 
 	public static final String SIMILARITY_THRESHOLD = "Minimum similarity threshold (score)";
 	public static final String SIMILARITY_THRESHOLD_DESC = "Similarity should be between 0 and 1";
-	public static final double SIMILARITY_THRESHOLD_DEFAULT = 0.1;
+	public static final double SIMILARITY_THRESHOLD_DEFAULT = 0.0;
 
 	public static final String CONFIDENCE_THRESHOLD = "Minimum confidence threshold (score)";
 	public static final String CONFIDENCE_THRESHOLD_DESC = "Confidence will be 1.0 (symbols don't match) or 10.0 (symbols match)";
@@ -31,7 +31,7 @@ public abstract class BulkProgramCorrelatorFactory extends VTAbstractProgramCorr
 
 	public static final String SYMBOL_NAMES_MUST_MATCH = "Symbol names must match";
 	public static final String SYMBOL_NAMES_MUST_MATCH_DESC = "Only match functions that have the same symbol names.";
-	public static final boolean SYMBOL_NAMES_MUST_MATCH_DEFAULT = true;
+	public static final boolean SYMBOL_NAMES_MUST_MATCH_DEFAULT = false;
 
 	public static final String IGNORE_UNDEFINED_SYMBOLS = "Ignore undefined symbols (FUN_)";
 	public static final String IGNORE_UNDEFINED_SYMBOLS_DESC = "Ignore undefined symbols (FUN_) for function matching";
@@ -39,15 +39,14 @@ public abstract class BulkProgramCorrelatorFactory extends VTAbstractProgramCorr
 	
 	public static final String ONLY_MATCH_ACCEPTED_MATCHES = "Only match accepted matches";
 	public static final String ONLY_MATCH_ACCEPTED_MATCHES_DESC = "Only match matches that have been accepted.";
-	public static final boolean ONLY_MATCH_ACCEPTED_MATCHES_DEFAULT = false;
+	public static final boolean ONLY_MATCH_ACCEPTED_MATCHES_DEFAULT = true;
 
 	private static final String helpLocationTopic = "patchdiffcorrelator";
 	protected String helpLocationAnchor = "PatchDiffCorrelator";
 
 	@Override
 	public int getPriority() {
-		// TODO Auto-generated method stub
-		return 1000;
+		return 8000; // run after included exact, reference and duplicate but before inlcuded similar correlators
 	}
 	
 	@Override

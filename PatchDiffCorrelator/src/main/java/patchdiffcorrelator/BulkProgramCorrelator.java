@@ -8,7 +8,7 @@ import java.util.List;
 
 import generic.stl.Pair;
 
-import static patchdiffcorrelator.BulkProgramCorrelatorFactory.*;
+import static patchdiffcorrelator.AbstractBulkProgramCorrelatorFactory.*;
 
 import ghidra.feature.vt.api.main.*;
 import ghidra.feature.vt.api.util.VTAbstractProgramCorrelator;

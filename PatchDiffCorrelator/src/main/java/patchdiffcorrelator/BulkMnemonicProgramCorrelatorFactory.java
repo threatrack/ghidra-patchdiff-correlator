@@ -6,7 +6,7 @@ import ghidra.framework.plugintool.ServiceProvider;
 import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.listing.Program;
 
-public class BulkMnemonicProgramCorrelatorFactory extends BulkProgramCorrelatorFactory {
+public class BulkMnemonicProgramCorrelatorFactory extends AbstractBulkProgramCorrelatorFactory {
 	static final String DESC = "Compares functions based on their included instruction mnemonics without taking the order of the instructions into account.";
 	static final String NAME = "Bulk Mnemonics Match";
 	

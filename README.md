@@ -53,7 +53,7 @@ are to one another instead of providing perfect matching as the included correla
 
 This indicator on similarity is need to find patches in functions.
 
-### Correlators
+### "Bulk" Correlators
 
 #### Bulk Instructions Match
 
@@ -187,23 +187,66 @@ There are several options:
 - `Ignore undefined symbols (FUN_)`: Settings this won't use the default labels assigned to undefined symbols for symbol name matching. So it won't match `FUN_00001234` to `FUN_00001234`.
 - `Only match accepted matches`: Only calculate the similarity for functions that already have an accepted match entry in the Matches Table. **This is the most useful option.**
 
+### Coloring Correlators
+
+These correlators color address ranges in the Source and Destination Programs
+that are different.
+
+#### ~~Abandoned: Coloring Basic Block Mnemonics~~
+
+**State: This is a first work in progess prototype to see whether a correlator is
+technically able to execute `setBackgroundColor()` on the Source and Destination Programs.**
+
+This colors basic blocks that are either new or deleted or have a different
+Mnemonic "Bulk" (see [Bulk Mnemonics Match] for a concept of "Bulk").
+
+**Current issues:**
+- Basic blocks are matched without CFG context.
+- Fails badly if a function contains a duplicate basic block and the other program only contains the basic block once.
+- **Version Tracking Correlators can't (and aren't supposed to) color programs**
+
+**This is implemented as a script.**
+
 ### Other Correlators
 
 - Recent paper summarizing the state of the art on binary code similarity: <https://arxiv.org/abs/1909.11424>
 
+## Scripts
+
+### FunctionDiffColorizer.java
+
+1. Open Source Program.
+2. Select Function to colorize in Destination Program.
+3. Run `FunctionDiffColorizer.java`
+	1. Select Destination Program.
+	2. Select Destination Function.
+4. The changes of the Destination Function in the Destination Program are now colored.
+
+**Issues:**
+
+- Unfortunately, it seems that after opening another program in a script `setBackgroundColor()`
+  only works on that program and not the original program anymore.
+
 ## TODO
 
-- Help of the Extension isn't available in Ghidra. Need to figure out how to fix that.
-- Figure out how to use the masking feature in Ghidra and use it.
-- Figure out this Ghidra bug(?): <https://github.com/NationalSecurityAgency/ghidra/issues/1135>
-- Add option to only return the highest scoring match(es) for each function instead of the cross product of all functions.
 - In `BasicBlockMnemonicFunctionBulker.hashes()` use a proper hashing algorithm to hash the basic blocks.
-- Use `symbol.getSource() == SourceType.DEFAULT` to detect undefined symbols instead of `.startswith("FUN_"`.
-
 - Optimization:
 	- Use the `instruction prime products` concept of BinDiff (see <https://www.zynamics.com/bindiff/manual/>)
 		- For this we need a mnemonic to prime number mapping :/
+- Help of the Extension isn't available in Ghidra. Need to figure out how to fix that.
+- Figure out this Ghidra bug(?): <https://github.com/NationalSecurityAgency/ghidra/issues/1135>
+- Add option to only return the highest scoring match(es) for each function instead of the cross product of all functions.
+- Use `symbol.getSource() == SourceType.DEFAULT` to detect undefined symbols instead of `.startswith("FUN_"`.
+- Either add masking to the `Instructions` bulker, e.g. via:
 
-- **Add script that colors changes in the destination program. So we can use Graph View to assess changes.**
+```python
+from ghidra.app.plugin.core.instructionsearch import InstructionSearchApi
+from ghidra.app.plugin.core.instructionsearch.model import MaskSettings
+InstructionSearchApi().getBinarySearchString(currentProgram,currentSelection.getFirstRange(),MaskSettings(False,False,True))
+```
+
+- ... or remove the `Instructions` bulker ... because it is kind of useless without masking.
+
+- Make FunctionDiffColorizer.java color both source and destination program!
 
 
