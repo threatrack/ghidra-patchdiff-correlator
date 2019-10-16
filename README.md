@@ -226,8 +226,8 @@ Mnemonic "Bulk" (see [Bulk Mnemonics Match] for a concept of "Bulk").
 
 **Issues:**
 
-- Unfortunately, it seems that after opening another program in a script `setBackgroundColor()`
-  only works on that program and not the original program anymore.
+- if a function contains duplicate basic blocks but the destination only one it just randomly picks one of them for matching
+- complex changes aren't handled optimally
 
 ## TODO
 
@@ -249,6 +249,5 @@ InstructionSearchApi().getBinarySearchString(currentProgram,currentSelection.get
 
 - ... or remove the `Instructions` bulker ... because it is kind of useless without masking.
 
-- Make FunctionDiffColorizer.java color both source and destination program!
 
 

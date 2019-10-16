@@ -16,6 +16,7 @@ import java.util.List;
 import generic.stl.Pair;
 import ghidra.app.plugin.core.colorizer.ColorizingService;
 import ghidra.app.script.GhidraScript;
+import ghidra.app.services.ProgramManager;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.block.BasicBlockModel;
@@ -30,10 +31,13 @@ import ghidra.program.model.symbol.Symbol;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 
-public class FunctionDiffColorizer2 extends GhidraScript {
+public class FunctionDiffColorizer extends GhidraScript {
+
+	private static final Color changedColor = new Color(200,180,180);
 
 	@Override
 	protected void run() throws Exception {
+		ProgramManager programManager = getState().getTool().getService(ProgramManager.class);
 		ColorizingService service = state.getTool().getService(ColorizingService.class);
 		if (service == null) {
 			println("Can't find ColorizingService service");
@@ -46,77 +50,78 @@ public class FunctionDiffColorizer2 extends GhidraScript {
 
 		// Get the dst function to compare against
 		Program dstProgram = askProgram("Select Destination Program");
-		int dstTransactionID = dstProgram.startTransaction("Dst FunctionDiffColorizer2.java");
-
-		List<String> askSymbolList = new ArrayList<String>();
-		for( Symbol s : dstProgram.getSymbolTable().getAllSymbols(false) )
+		int dstTransactionID = dstProgram.startTransaction("Dst FunctionDiffColorizer.java");
+		try
 		{
-			askSymbolList.add(s.toString());
-		}
-		String dstSymbolString = askChoice("Select Destination Function", "Select Destination Function", askSymbolList, srcSymbolString);
-		Address dstAddress = null;
-		for( Symbol s : dstProgram.getSymbolTable().getAllSymbols(false))
-		{
-			if(s.toString().equals(dstSymbolString))
-				dstAddress = s.getAddress();
-		}
-		if( dstAddress == null )
-		{
-			throw new Exception("Could not get Destination function's address");
-		}
-		Function dstFunc = dstProgram.getFunctionManager().getFunctionAt(dstAddress);
-		
-
-		println(currentProgram.getName());
-
-		List<Pair<Long,AddressSetView>> srcList = hashes(srcProgram, srcFunc, monitor);
-		List<Pair<Long,AddressSetView>> dstList = hashes(dstProgram, dstFunc, monitor);
-
-		println(currentProgram.getName());
-
-		int s = 0;
-		int d = 0;
-		while( s<srcList.size() && d<dstList.size() )
-		{
-			Pair<Long,AddressSetView> src = srcList.get(s);
-			Pair<Long,AddressSetView> dst = dstList.get(d);
-			// TOOO: FIXME: this breaks on duplicate basic blocks
-			int c = src.first.compareTo(dst.first);
-			if( c<0 )
+			List<String> askSymbolList = new ArrayList<String>();
+			for( Symbol s : dstProgram.getSymbolTable().getAllSymbols(false) )
 			{
+				askSymbolList.add(s.toString());
+			}
+			String dstSymbolString = askChoice("Select Destination Function", "Select Destination Function", askSymbolList, srcSymbolString);
+			Address dstAddress = null;
+			for( Symbol s : dstProgram.getSymbolTable().getAllSymbols(false))
+			{
+				if(s.toString().equals(dstSymbolString))
+					dstAddress = s.getAddress();
+			}
+			if( dstAddress == null )
+			{
+				throw new Exception("Could not get Destination function's address");
+			}
+			Function dstFunc = dstProgram.getFunctionManager().getFunctionAt(dstAddress);
+
+			List<Pair<Long,AddressSetView>> srcList = hashes(srcProgram, srcFunc, monitor);
+			List<Pair<Long,AddressSetView>> dstList = hashes(dstProgram, dstFunc, monitor);
+
+			int s = 0;
+			int d = 0;
+			while( s<srcList.size() && d<dstList.size() )
+			{
+				Pair<Long,AddressSetView> src = srcList.get(s);
+				Pair<Long,AddressSetView> dst = dstList.get(d);
+				// TOOO: FIXME: this breaks on duplicate basic blocks
+				int c = src.first.compareTo(dst.first);
+				if( c<0 )
+				{
+					println("Src Different");
+					programManager.setCurrentProgram(srcProgram);
+					setBackgroundColor(src.second, changedColor);
+					s++;
+				}
+				else if( c>0 )
+				{
+					println("Dst Different");
+					programManager.setCurrentProgram(dstProgram);
+					setBackgroundColor(dst.second, changedColor);
+					d++;
+				}
+				else // c==0 
+				{
+					println("Not Different");
+					s++;
+					d++;
+				}
+			}
+			while( s<srcList.size() )
+			{
+				Pair<Long,AddressSetView> src = srcList.get(s);
 				println("Src Different");
-				//setBackgroundColor(src.second, new Color(200,160,160));
+				programManager.setCurrentProgram(srcProgram);
+				setBackgroundColor(src.second, changedColor);
 				s++;
 			}
-			else if( c>0 )
+			while( d<srcList.size() )
 			{
+				Pair<Long,AddressSetView> dst = dstList.get(d);
 				println("Dst Different");
-				setBackgroundColor(dst.second, new Color(200,160,160));
+				programManager.setCurrentProgram(dstProgram);
+				setBackgroundColor(dst.second, changedColor);
 				d++;
 			}
-			else // c==0 
-			{
-				println("Not Different");
-				s++;
-				d++;
-			}
+		} finally {
+			dstProgram.endTransaction(dstTransactionID, true);
 		}
-		while( s<srcList.size() )
-		{
-			Pair<Long,AddressSetView> src = srcList.get(s);
-			println("Src Different");
-			//setBackgroundColor(src.second, new Color(200,160,160));
-			s++;
-		}
-		while( d<srcList.size() )
-		{
-			Pair<Long,AddressSetView> dst = dstList.get(d);
-			println("Dst Different");
-			setBackgroundColor(dst.second, new Color(200,160,160));
-			d++;
-		}
-
-		dstProgram.endTransaction(dstTransactionID, true);
 
 	}
 	
