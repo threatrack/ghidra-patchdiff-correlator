@@ -234,7 +234,8 @@ Mnemonic "Bulk" (see [Bulk Mnemonics Match] for a concept of "Bulk").
 - In `BasicBlockMnemonicFunctionBulker.hashes()` use a proper hashing algorithm to hash the basic blocks.
 - Optimization:
 	- Use the `instruction prime products` concept of BinDiff (see <https://www.zynamics.com/bindiff/manual/>)
-		- For this we need a mnemonic to prime number mapping :/
+		- ~~For this we need a mnemonic to prime number mapping :/~~
+		- @byte_swap had the idea to work on PCode, so only a mapping PCode -> prime is needed, and that will work on all arches.
 - Help of the Extension isn't available in Ghidra. Need to figure out how to fix that.
 - Figure out this Ghidra bug(?): <https://github.com/NationalSecurityAgency/ghidra/issues/1135>
 - Add option to only return the highest scoring match(es) for each function instead of the cross product of all functions.
