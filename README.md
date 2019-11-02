@@ -6,7 +6,7 @@ This project tries to provide additional Ghidra Version Tracking Correlators sui
 
 ## How do I install it?
 
-In Ghidra: `File` -> `Install Extensions` and select the `ghidra_9.1-BETA_DEV_20191010_PatchDiffCorrelator.zip`.
+In Ghidra: `File` -> `Install Extensions` hit the top right green `+` icon; then select the `ghidra_<VERSION>_PatchDiffCorrelator.zip` (that you either build from source with the GhidraDev plugin or downloaded pre-build from the [releases section](https://github.com/threatrack/ghidra-patchdiff-correlator/releases); please make sure `VERSION` matches your Ghidra version!)
 
 Then restart Ghidra.
 
