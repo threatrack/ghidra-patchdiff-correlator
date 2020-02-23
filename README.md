@@ -245,25 +245,11 @@ gradle -PGHIDRA_INSTALL_DIR=$GHIDRA_HOME
 Just importing the Gradle project doesn't work (unless you got the exact same Ghidra version (and paths?) that were used when developing this.
 
 The easiest way so far (that I found) to import the code in Eclipse for development is:
-
+                                                                                 
 1. You need to have Eclipse setup with the GhidraDev plugin.
-2. In Eclipse: GhidraDev -> New -> Ghidra Module Project...; Project name: PatchDiffCorrelator, Project root directory: set a new **empty** directory that does not contain PatchDiffCorrelator, "NEXT"; **Deselect all** module templates, "FINISH"
-
-3. Delete
-
-```
-bin
-data
-ghidra_scripts
-lib
-os
-src
-extension.properties
-```
-
-4. Replace above files and folders with the versions in `$GITHUB_PATH/threatrack/ghidra-patchdiff-correlator/PatchDiffCorrelator/`.
-5. Reload project in Eclipse.
-6. Pray it worked.
+2. `git clone https://github.com/threatrack/ghidra-patchdiff-correlator; cd ghidra-patchdiff-correlator; mv PatchDiffCorrelator PatchDiffCorrelator.bak`
+3. In Eclipse: GhidraDev -> New -> Ghidra Module Project...; Project name: PatchDiffCorrelator, Project root directory: `$GITHUB/threatrack/ghidra-patchdiff-correlator`, "NEXT"; **Deselect all** module templates, "FINISH"
+4. Project -> Import; General -> Filesystem; From directory: `$GITHUB/threatrack/ghidra-patchdiff-correlator/PatchDiffCorrelator.bak`
 
 
 ## TODO
