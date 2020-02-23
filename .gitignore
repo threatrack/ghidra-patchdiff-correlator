@@ -3,6 +3,7 @@
 .settings
 .project
 .gradle
+.antProperties.xml
 */build/
 
 # Ignore Gradle GUI config

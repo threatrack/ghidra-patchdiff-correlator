@@ -229,6 +229,43 @@ Mnemonic "Bulk" (see [Bulk Mnemonics Match] for a concept of "Bulk").
 - if a function contains duplicate basic blocks but the destination only one it just randomly picks one of them for matching
 - complex changes aren't handled optimally
 
+## How to develop with this?
+
+```
+git clone https://github.com/threatrack/ghidra-patchdiff-correlator
+# build `ghidra_<VERSION>_PatchDiffCorrelator.zip` from command line
+cd ghidra-patchdiff-correlator/PatchDiffCorrelator/
+gradle -PGHIDRA_INSTALL_DIR=$GHIDRA_HOME
+```
+
+### Eclipse
+
+**I have no idea how Eclipse or Java or any of that works so this may be bullshit - but it works!**
+
+Just importing the Gradle project doesn't work (unless you got the exact same Ghidra version (and paths?) that were used when developing this.
+
+The easiest way so far (that I found) to import the code in Eclipse for development is:
+
+1. You need to have Eclipse setup with the GhidraDev plugin.
+2. In Eclipse: GhidraDev -> New -> Ghidra Module Project...; Project name: PatchDiffCorrelator, Project root directory: set a new **empty** directory that does not contain PatchDiffCorrelator, "NEXT"; **Deselect all** module templates, "FINISH"
+
+3. Delete
+
+```
+bin
+data
+ghidra_scripts
+lib
+os
+src
+extension.properties
+```
+
+4. Replace above files and folders with the versions in `$GITHUB_PATH/threatrack/ghidra-patchdiff-correlator/PatchDiffCorrelator/`.
+5. Reload project in Eclipse.
+6. Pray it worked.
+
+
 ## TODO
 
 - In `BasicBlockMnemonicFunctionBulker.hashes()` use a proper hashing algorithm to hash the basic blocks.
